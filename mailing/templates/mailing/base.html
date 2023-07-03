@@ -98,7 +98,9 @@
 
 
 {% include 'mailing/include/inc_main_menu.html' %}
-
+{% if client.black_list == True %}
+    <h1>Ваш аккаунт в черном списке</h1>
+{% endif %}
 {% block content %}
 
 {% endblock %}

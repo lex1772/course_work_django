@@ -12,14 +12,12 @@ class StyleFormMixin:
 
 
 class MailForm(StyleFormMixin, forms.ModelForm):
-    client = forms.ModelMultipleChoiceField(queryset=Client.objects.values_list('contact_email', flat=True), required=False)
+    client = forms.ModelChoiceField(queryset=Client.objects.all(), required=False)
 
     class Meta:
         model = models.Mail
-        fields = ('mailing_subject', 'mailing_body', 'client',)
-        widgets = {
-            'client': forms.RadioSelect(),
-        }
+        fields = ('mailing_subject', 'mailing_body', 'client', 'all_clients')
+
 
 
 
