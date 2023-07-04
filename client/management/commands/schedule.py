@@ -9,6 +9,7 @@ from mailing.models import Mail, MailingSettings, MailingTry
 
 
 class Command(BaseCommand):
+    '''команда для запуска рассылки периодических задач'''
 
     def handle(self, *args, **options):
         for mail in Mail.objects.values():
@@ -25,22 +26,21 @@ class Command(BaseCommand):
                     setting.mail_status = 'Не отправлено'
 
                 if (setting.mailing_periods == "DL") and ((
-                                                                      setting.mailing_time_end - setting.mailing_time_start) <= timedelta(
+                                                                  setting.mailing_time_end - setting.mailing_time_start) <= timedelta(
                     days=1)):
                     setting.mailing_status = 'FI'
                     setting.save()
                 elif (setting.mailing_periods == "WL") and ((
-                                                                        setting.mailing_time_end - setting.mailing_time_start) <= timedelta(
+                                                                    setting.mailing_time_end - setting.mailing_time_start) <= timedelta(
                     days=6)):
                     setting.mailing_status = 'FI'
                     setting.save()
                 elif (setting.mailing_periods == "ML") and ((
-                                                                        setting.mailing_time_end - setting.mailing_time_start) <= timedelta(
+                                                                    setting.mailing_time_end - setting.mailing_time_start) <= timedelta(
                     days=30)):
                     setting.mailing_status = 'FI'
                     setting.save()
 
                 MailingTry.objects.create(mailing=setting, mailing_try=datetime.now(),
-                                                 mailing_try_status=setting.mailing_status,
-                                                 mailing_response=setting.mail_status)
-
+                                          mailing_try_status=setting.mailing_status,
+                                          mailing_response=setting.mail_status)
