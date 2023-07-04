@@ -1,7 +1,10 @@
 from django.contrib import admin
 
-from client.models import Client
-
+from client.models import User, MailingClient
 
 # Register your models here.
-admin.site.register(Client)
+
+# Регистрируем в админке 2 модели
+admin.site.register(User)
+
+admin.site.register(MailingClient)

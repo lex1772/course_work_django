@@ -1,10 +1,12 @@
 from django import forms
 
-from client.models import Client
+from client.models import MailingClient
 from mailing import models
 
 
 class StyleFormMixin:
+    '''Форма для выравнивания непосредственно самих форм в html'''
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
@@ -12,16 +14,17 @@ class StyleFormMixin:
 
 
 class MailForm(StyleFormMixin, forms.ModelForm):
-    client = forms.ModelChoiceField(queryset=Client.objects.all(), required=False)
+    '''Форма для письма с переменной которая выводит в список и дает выбрать нескольких клиентов'''
+    client_to_message = forms.ModelMultipleChoiceField(queryset=MailingClient.objects.all(), required=False)
 
     class Meta:
         model = models.Mail
-        fields = ('mailing_subject', 'mailing_body', 'client', 'all_clients')
-
-
+        fields = ('mailing_subject', 'mailing_body', 'client_to_message', 'all_clients',)
 
 
 class SettingsForm(StyleFormMixin, forms.ModelForm):
+    '''Форма для настроек рассылки'''
+
     class Meta:
         model = models.MailingSettings
         fields = ('mailing_time_start', 'mailing_time_end', 'mailing_periods',)
@@ -29,3 +32,11 @@ class SettingsForm(StyleFormMixin, forms.ModelForm):
             'mailing_time_start': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'mailing_time_end': forms.DateTimeInput(attrs={'type': 'datetime-local'})
         }
+
+
+class MailingClientForm(StyleFormMixin, forms.ModelForm):
+    '''Форма для получателей рассылки'''
+
+    class Meta:
+        model = models.MailingClient
+        fields = ('full_name', 'contact_email', 'comment',)

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.core.mail import send_mail
 from django.core.management import BaseCommand
 
-from client.models import Client
+from client.models import MailingClient
 from config import settings
 from mailing.models import Mail, MailingSettings, MailingTry
 
@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for mail in Mail.objects.values():
             setting = MailingSettings.objects.get(id=mail["settings_id"])
-            client = Client.objects.get(id=mail["client_id"])
+            client = MailingClient.objects.get(id=mail["client_to_message_id"])
             if setting.mailing_status == "AC":
                 setting.mailing_time_start = datetime.now()
                 sending = send_mail(mail["mailing_subject"], mail["mailing_body"], settings.DEFAULT_FROM_EMAIL,

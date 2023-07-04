@@ -38,4 +38,4 @@ if defined _OLD_VIRTUAL_PATH goto ENDIFVPATH2
 
 set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 
-.\manage.py schedule 
+.\python manage.py schedule

@@ -1,18 +1,20 @@
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django import forms
 
-from client.models import Client
+from client.models import User
 
 
-class ClientRegisterForm(UserCreationForm):
+class UserRegisterForm(UserCreationForm):
+    '''Форма для регистрации пользователя'''
     class Meta:
-        model = Client
+        model = User
         fields = ('contact_email', 'password1', 'password2',)
 
 
-class ClientProfileForm(UserChangeForm):
+class UserProfileForm(UserChangeForm):
+    '''Форма для профиля пользователя. В ините убираем редактирование пароля'''
     class Meta:
-        model = Client
+        model = User
         fields = ('full_name', 'contact_email', )
 
     def __init__(self, *args, **kwargs):

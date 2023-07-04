@@ -1,25 +1,29 @@
 from django.contrib import messages
-from django.contrib.auth import login
-from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
 from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views import generic
+from django.utils.http import urlsafe_base64_encode
+from django.views import View
+from django.views.generic import CreateView, UpdateView, DeleteView
 
-from client import forms
-from client.models import Client
-from client.tokens import email_verification_token
 from config import settings
+from client.forms import UserRegisterForm, UserProfileForm
+from client.models import User
+
+from django.contrib.auth import login
+from django.utils.http import urlsafe_base64_decode
+
+from client.tokens import email_verification_token
 
 
 # Create your views here.
-class RegisterView(generic.CreateView):
-    model = Client
-    form_class = forms.ClientRegisterForm
+class RegisterView(CreateView):
+    '''Регистрация пользователя с получением заполненной формы и передачей этой формы в создание письма подтверждения емейла'''
+    model = User
+    form_class = UserRegisterForm
     template_name = 'client/register.html'
     success_url = reverse_lazy('client:login')
 
@@ -30,41 +34,43 @@ class RegisterView(generic.CreateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            client = form.save(commit=False)
-            client.is_active = False
-            client.save()
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
 
             current_site = get_current_site(request)
             subject = 'Завершение регистрации'
             message = render_to_string('client/account_activation_email.html', {
-                'user': client,
+                'user': user,
                 'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(client.pk)),
-                'token': email_verification_token.make_token(client),
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': email_verification_token.make_token(user),
             })
-            client.email_user(subject, message)
+            user.email_user(subject, message)
 
             messages.success(request, ('Пожалуйста подтвердите ваш email для завершения регистрации.'))
 
         return render(request, self.template_name, {'form': form})
 
 
-class ProfileView(generic.UpdateView):
-    model = Client
-    form_class = forms.ClientProfileForm
+class ProfileView(UpdateView):
+    '''Класс для просмотра и редактирования профиля пользователя'''
+    model = User
+    form_class = UserProfileForm
     success_url = reverse_lazy('client:profile')
 
     def get_object(self, queryset=None):
         return self.request.user
 
 
-class ActivateAccount(generic.View):
+class ActivateAccount(View):
+    '''Класс для активации аккаунта после подтверждения почты'''
     success_url = reverse_lazy('client:login')
 
     def get(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
-            user = Client.objects.get(pk=uid)
+            user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
 
@@ -81,6 +87,7 @@ class ActivateAccount(generic.View):
 
 
 def generate_new_password(request):
+    '''Функция для создания нового пароля и отправки его на почту'''
     password = User.objects.make_random_password()
     send_mail(
         subject='Вы сменили пароль',
@@ -91,3 +98,15 @@ def generate_new_password(request):
     request.user.set_password(password)
     request.user.save()
     return redirect(reverse('client:login'))
+
+
+class ProfileDeleteView(DeleteView):
+    '''Класс для удаления профиля пользователя'''
+    model = User
+    form_class = UserProfileForm
+    reverse_lazy('client:login')
+
+    def get_object(self, queryset=None):
+        obj = super().get_object()
+        obj.delete()
+        return redirect(reverse('client:login'))
