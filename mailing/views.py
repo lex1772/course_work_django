@@ -311,6 +311,4 @@ class MailingTryListView(LoginRequiredMixin, generic.ListView):
         'title': 'Отчет по рассылкам'
     }
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset
+
