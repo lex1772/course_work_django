@@ -63,12 +63,14 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
         self.object.author = self.request.user
         self.object.save()
         formset = data['formset']
-        client_email = ''
+        client_email = []
         mailing_subject = ''
         mailing_body = ''
         for fo in formset:
             if fo.is_valid():
-                client_email = fo.cleaned_data.get('client')
+                clients = fo.cleaned_data.get('client_to_message')
+                for i in clients:
+                    client_email.append(i)
                 mailing_subject = fo.cleaned_data.get('mailing_subject')
                 mailing_body = fo.cleaned_data.get('mailing_body')
                 all_clients = fo.cleaned_data.get('all_clients')
@@ -192,12 +194,14 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
         data = self.get_context_data()
         self.object = form.save()
         formset = data['formset']
-        client_email = ''
+        client_email = []
         mailing_subject = ''
         mailing_body = ''
         for fo in formset:
             if fo.is_valid():
-                client_email = fo.cleaned_data.get('client')
+                clients = fo.cleaned_data.get('client_to_message')
+                for i in clients:
+                    client_email.append(i)
                 mailing_subject = fo.cleaned_data.get('mailing_subject')
                 mailing_body = fo.cleaned_data.get('mailing_body')
                 all_clients = fo.cleaned_data.get('all_clients')
