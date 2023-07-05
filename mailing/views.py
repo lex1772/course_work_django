@@ -87,41 +87,39 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
         self.object.save()
         ct = datetime.now()
         '''Тут сверяется время рассылки и если она истекла, то она отключается'''
-        if self.object.mailing_time_start.timestamp() <= ct.timestamp() <= self.object.mailing_time_end.timestamp():
-            if isinstance(client_email, list):
-                sending = send_mail(mailing_subject, mailing_body, settings.DEFAULT_FROM_EMAIL,
-                                    recipient_list=[*client_email],
-                                    fail_silently=False)
-            else:
+        try:
+            if self.object.mailing_time_start.timestamp() <= ct.timestamp() <= self.object.mailing_time_end.timestamp():
                 sending = send_mail(mailing_subject, mailing_body, settings.DEFAULT_FROM_EMAIL,
                                     recipient_list=[client_email],
                                     fail_silently=False)
-            if sending == 1:
-                self.mail_status = 'OK'
-            else:
-                self.mail_status = 'Не отправлено'
+                if sending == 1:
+                    self.mail_status = 'OK'
+                else:
+                    self.mail_status = 'Не отправлено'
 
-        if (self.object.mailing_periods == "DL") and ((
-                                                              self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
-            days=1)):
-            self.object.mailing_status = 'FI'
-            self.object.save()
-        elif (self.object.mailing_periods == "WL") and ((
-                                                                self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
-            days=6)):
-            self.object.mailing_status = 'FI'
-            self.object.save()
-        elif (self.object.mailing_periods == "ML") and ((
-                                                                self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
-            days=30)):
-            self.object.mailing_status = 'FI'
-            self.object.save()
-        '''Создание отчета об отправке'''
-        models.MailingTry.objects.create(mailing=self.object, mailing_try=datetime.now(),
-                                         mailing_try_status=self.object.mailing_status,
-                                         mailing_response=self.mail_status)
-        return super().form_valid(form)
+            if (self.object.mailing_periods == "DL") and ((
+                                                                  self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
+                days=1)):
+                self.object.mailing_status = 'FI'
+                self.object.save()
+            elif (self.object.mailing_periods == "WL") and ((
+                                                                    self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
+                days=6)):
+                self.object.mailing_status = 'FI'
+                self.object.save()
+            elif (self.object.mailing_periods == "ML") and ((
+                                                                    self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
+                days=30)):
+                self.object.mailing_status = 'FI'
+                self.object.save()
 
+            models.MailingTry.objects.create(mailing=self.object, mailing_try=datetime.now(),
+                                             mailing_try_status=self.object.mailing_status,
+                                             mailing_response=self.mail_status)
+            return super().form_valid(form)
+        except AttributeError:
+            form.add_error(None, 'Установите дату рассылки.')
+            return super(MailingCreateView, self).form_invalid(form)
 
 class MailingListView(LoginRequiredMixin, generic.ListView):
     '''Контроллер списка рассылок'''
@@ -217,36 +215,39 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
         self.object.save()
         ct = datetime.now()
 
-        if self.object.mailing_time_start.timestamp() <= ct.timestamp() <= self.object.mailing_time_end.timestamp():
-            sending = send_mail(mailing_subject, mailing_body, settings.DEFAULT_FROM_EMAIL,
-                                recipient_list=[client_email],
-                                fail_silently=False)
-            print('письмо ушло')
-            if sending == 1:
-                self.mail_status = 'OK'
-            else:
-                self.mail_status = 'Не отправлено'
+        try:
+            if self.object.mailing_time_start.timestamp() <= ct.timestamp() <= self.object.mailing_time_end.timestamp():
+                sending = send_mail(mailing_subject, mailing_body, settings.DEFAULT_FROM_EMAIL,
+                                    recipient_list=[client_email],
+                                    fail_silently=False)
+                if sending == 1:
+                    self.mail_status = 'OK'
+                else:
+                    self.mail_status = 'Не отправлено'
 
-        if (self.object.mailing_periods == "DL") and ((
-                                                              self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
-            days=1)):
-            self.object.mailing_status = 'FI'
-            self.object.save()
-        elif (self.object.mailing_periods == "WL") and ((
-                                                                self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
-            days=6)):
-            self.object.mailing_status = 'FI'
-            self.object.save()
-        elif (self.object.mailing_periods == "ML") and ((
-                                                                self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
-            days=30)):
-            self.object.mailing_status = 'FI'
-            self.object.save()
+            if (self.object.mailing_periods == "DL") and ((
+                                                                  self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
+                days=1)):
+                self.object.mailing_status = 'FI'
+                self.object.save()
+            elif (self.object.mailing_periods == "WL") and ((
+                                                                    self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
+                days=6)):
+                self.object.mailing_status = 'FI'
+                self.object.save()
+            elif (self.object.mailing_periods == "ML") and ((
+                                                                    self.object.mailing_time_end - self.object.mailing_time_start) <= timedelta(
+                days=30)):
+                self.object.mailing_status = 'FI'
+                self.object.save()
 
-        models.MailingTry.objects.create(mailing=self.object, mailing_try=datetime.now(),
-                                         mailing_try_status=self.object.mailing_status,
-                                         mailing_response=self.mail_status)
-        return super().form_valid(form)
+            models.MailingTry.objects.create(mailing=self.object, mailing_try=datetime.now(),
+                                             mailing_try_status=self.object.mailing_status,
+                                             mailing_response=self.mail_status)
+            return super().form_valid(form)
+        except AttributeError:
+            form.add_error(None, 'Установите дату рассылки.')
+            return super(MailingUpdateView, self).form_invalid(form)
 
 
 class BlogListView(generic.ListView):
@@ -310,5 +311,3 @@ class MailingTryListView(LoginRequiredMixin, generic.ListView):
     extra_context = {
         'title': 'Отчет по рассылкам'
     }
-
-
