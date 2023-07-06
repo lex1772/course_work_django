@@ -13,11 +13,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for mail in Mail.objects.values():
-            mail_to = Mail.objects.values('client_to_message').filter(id=mail['id'])
+            mail_to = Mail.objects.filter(id=mail["id"]).values()
+            set_of_mails = Mail.objects.get(id=mail_to[0]['id'])
+            client_to_message = set_of_mails.client_to_message.all()
+            list_mail_to = []
+            for i in client_to_message.values_list():
+                list_mail_to.append(i[2])
             setting = MailingSettings.objects.get(id=mail["settings_id"])
             if len(mail_to) > 1:
                 for i in mail_to:
-                    client = MailingClient.objects.get(id=i["client_to_message"])
+                    client = MailingClient.objects.get(id=i)
                     if (setting.mailing_status == "AC") and (
                             setting.mailing_periods == "DL" and setting.mailing_time_start - datetime.now() >= timedelta(
                         days=1)) or (
@@ -27,7 +32,7 @@ class Command(BaseCommand):
                         days=30)):
                         setting.mailing_time_start = datetime.now()
                         sending = send_mail(mail["mailing_subject"], mail["mailing_body"], settings.DEFAULT_FROM_EMAIL,
-                                            recipient_list=[client.contact_email],
+                                            recipient_list=list_mail_to,
                                             fail_silently=False)
                         if sending == 1:
                             setting.mail_status = 'OK'
@@ -55,7 +60,6 @@ class Command(BaseCommand):
                                                   mailing_response=setting.mail_status)
             else:
                 setting = MailingSettings.objects.get(id=mail["settings_id"])
-                client = MailingClient.objects.get(id=mail_to["client_to_message"])
                 if (setting.mailing_status == "AC") and (
                         setting.mailing_periods == "DL" and setting.mailing_time_start - datetime.now() >= timedelta(
                     days=1)) or (
@@ -65,7 +69,7 @@ class Command(BaseCommand):
                     days=30)):
                     setting.mailing_time_start = datetime.now()
                     sending = send_mail(mail["mailing_subject"], mail["mailing_body"], settings.DEFAULT_FROM_EMAIL,
-                                        recipient_list=[client.contact_email],
+                                        recipient_list=list_mail_to,
                                         fail_silently=False)
                     if sending == 1:
                         setting.mail_status = 'OK'

@@ -8,14 +8,14 @@ class UserRegisterForm(UserCreationForm):
     '''Форма для регистрации пользователя'''
     class Meta:
         model = User
-        fields = ('contact_email', 'password1', 'password2',)
+        fields = ('email', 'password1', 'password2',)
 
 
 class UserProfileForm(UserChangeForm):
     '''Форма для профиля пользователя. В ините убираем редактирование пароля'''
     class Meta:
         model = User
-        fields = ('full_name', 'contact_email', )
+        fields = ('full_name', 'email', )
 
     def __init__(self, *args, **kwargs):
         forms.ModelForm.__init__(self, *args, **kwargs)

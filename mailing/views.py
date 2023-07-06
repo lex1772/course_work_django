@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta
 
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
@@ -29,7 +30,7 @@ class HomePage(generic.TemplateView):
         clients = models.MailingClient.objects.all().count()
         random_article = models.Blog.objects.order_by('?')[:3]
         context['mails'] = mails
-        context['active'] = active
+        context['active'] = active[0]
         context['clients'] = clients
         context['random_article'] = random_article
         return context
@@ -68,9 +69,9 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
         mailing_body = ''
         for fo in formset:
             if fo.is_valid():
-                clients = fo.cleaned_data.get('client_to_message')
+                clients = fo.cleaned_data.get('client_to_message').values_list()
                 for i in clients:
-                    client_email.append(i)
+                    client_email.append(i[2])
                 mailing_subject = fo.cleaned_data.get('mailing_subject')
                 mailing_body = fo.cleaned_data.get('mailing_body')
                 all_clients = fo.cleaned_data.get('all_clients')
@@ -90,7 +91,7 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
         try:
             if self.object.mailing_time_start.timestamp() <= ct.timestamp() <= self.object.mailing_time_end.timestamp():
                 sending = send_mail(mailing_subject, mailing_body, settings.DEFAULT_FROM_EMAIL,
-                                    recipient_list=[client_email],
+                                    recipient_list=client_email,
                                     fail_silently=False)
                 if sending == 1:
                     self.mail_status = 'OK'
@@ -121,6 +122,7 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
             form.add_error(None, 'Установите дату рассылки.')
             return super(MailingCreateView, self).form_invalid(form)
 
+
 class MailingListView(LoginRequiredMixin, generic.ListView):
     '''Контроллер списка рассылок'''
     template_name = "mailing\mail_list.html"
@@ -145,6 +147,17 @@ class MailingDeleteView(LoginRequiredMixin, generic.DeleteView):
     '''Контроллер для удаления рассылки'''
     model = models.Mail
     success_url = reverse_lazy('mailing:mailing')
+
+    def delete(self, request, *args, **kwargs):
+        # Получаем объект рассылки
+        self.object = self.get_object()
+
+        # Удаляем рассылку
+        self.object.delete()
+
+        messages.success(request, 'Рассылка успешно удалена.')
+
+        return redirect(self.success_url)
 
 
 class MailingUsersCreateView(LoginRequiredMixin, generic.CreateView):
@@ -197,9 +210,9 @@ class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
         mailing_body = ''
         for fo in formset:
             if fo.is_valid():
-                clients = fo.cleaned_data.get('client_to_message')
+                clients = fo.cleaned_data.get('client_to_message').values_list()
                 for i in clients:
-                    client_email.append(i)
+                    client_email.append(i[2])
                 mailing_subject = fo.cleaned_data.get('mailing_subject')
                 mailing_body = fo.cleaned_data.get('mailing_body')
                 all_clients = fo.cleaned_data.get('all_clients')

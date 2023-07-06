@@ -41,7 +41,7 @@ class MailingSettings(models.Model):
 
 class Mail(models.Model):
     '''Модель письма рассылки с полями настроек, получателя, темы письма, тела письма, выбора всех клиентов и булевым полем активности'''
-    client_to_message = models.ManyToManyField(MailingClient, verbose_name='Клиенты', **NULLABLE)
+    client_to_message = models.ManyToManyField(MailingClient, verbose_name='Клиенты', **NULLABLE, related_name='client_to_message')
     settings = models.ForeignKey(MailingSettings, on_delete=models.CASCADE)
     mailing_subject = models.CharField(max_length=255, verbose_name='тема письма')
     mailing_body = models.CharField(max_length=500, verbose_name='тело письма')
@@ -56,10 +56,7 @@ class Mail(models.Model):
         verbose_name = 'Письмо'
         verbose_name_plural = 'Письма'
 
-    def delete(self, *args, **kwargs):
-        '''функция для отключения рассылки'''
-        self.is_active = False
-        self.save()
+
 
 
 class MailingTry(models.Model):

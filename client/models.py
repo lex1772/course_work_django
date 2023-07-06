@@ -13,15 +13,15 @@ class User(AbstractUser):
     username = None
 
     full_name = models.CharField(max_length=255, verbose_name='ФИО', **NULLABLE)
-    contact_email = models.EmailField(max_length=254, unique=True, verbose_name='контактный email')
+    email = models.EmailField(max_length=254, unique=True, verbose_name='контактный email')
     comment = models.CharField(max_length=255, verbose_name='комментарий', **NULLABLE)
     is_active = models.BooleanField(default=False, verbose_name='активный')
 
-    USERNAME_FIELD = 'contact_email'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return f'{self.contact_email}'
+        return f'{self.email}'
 
     class Meta:
         verbose_name = 'Клиент'

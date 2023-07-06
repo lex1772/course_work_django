@@ -31,26 +31,24 @@ class RegisterView(CreateView):
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.is_active = False
+        user.save()
 
-            current_site = get_current_site(request)
-            subject = 'Завершение регистрации'
-            message = render_to_string('client/account_activation_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': email_verification_token.make_token(user),
-            })
-            user.email_user(subject, message)
+        current_site = get_current_site(self.request)
+        subject = 'Завершение регистрации'
+        message = render_to_string('client/account_activation_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': email_verification_token.make_token(user),
+        })
+        if user.email_user(subject, message):
+            print('Отправлено')
 
-            messages.success(request, ('Пожалуйста подтвердите ваш email для завершения регистрации.'))
-
-        return render(request, self.template_name, {'form': form})
+        messages.success(self.request, ('Пожалуйста подтвердите ваш email для завершения регистрации.'))
+        return redirect(self.success_url)
 
 
 class ProfileView(UpdateView):
@@ -104,9 +102,9 @@ class ProfileDeleteView(DeleteView):
     '''Класс для удаления профиля пользователя'''
     model = User
     form_class = UserProfileForm
-    reverse_lazy('client:login')
+    success_url = reverse_lazy('client:login')
 
     def get_object(self, queryset=None):
         obj = super().get_object()
         obj.delete()
-        return redirect(reverse('client:login'))
+        return redirect(self.success_url)
