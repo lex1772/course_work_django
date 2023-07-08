@@ -38,7 +38,7 @@ class HomePage(generic.TemplateView):
 
 class MailingCreateView(LoginRequiredMixin, generic.CreateView):
     '''Контроллер создания рассылки'''
-    template_name = "mailing\mail_form.html"
+    template_name = "mailing/mail_form.html"
     model = models.MailingSettings
     form_class = forms.SettingsForm
     success_url = reverse_lazy('mailing:homepage')
@@ -125,7 +125,7 @@ class MailingCreateView(LoginRequiredMixin, generic.CreateView):
 
 class MailingListView(LoginRequiredMixin, generic.ListView):
     '''Контроллер списка рассылок'''
-    template_name = "mailing\mail_list.html"
+    template_name = "mailing/mail_list.html"
     model = models.Mail
     paginate_by = 10
     extra_context = {
@@ -162,7 +162,7 @@ class MailingDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 class MailingUsersCreateView(LoginRequiredMixin, generic.CreateView):
     '''Контроллер для создания получателей рассылки'''
-    template_name = "mailing\create_clients.html"
+    template_name = "mailing/create_clients.html"
     model = models.MailingClient
     form_class = forms.MailingClientForm
     success_url = reverse_lazy('mailing:homepage')
@@ -177,7 +177,7 @@ class MailingUsersCreateView(LoginRequiredMixin, generic.CreateView):
 
 class MailingUpdateView(LoginRequiredMixin, generic.UpdateView):
     '''Контроллер для изменения рассылки. Все тоже самое, как и в создании, только с проверкой, что пользователь является автором'''
-    template_name = "mailing\mail_form.html"
+    template_name = "mailing/mail_form.html"
     model = models.MailingSettings
     form_class = forms.SettingsForm
     success_url = reverse_lazy('mailing:mailing')
@@ -318,7 +318,7 @@ class BlogDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 class MailingTryListView(LoginRequiredMixin, generic.ListView):
     '''Контроллер для просмотра отчета по отправкам'''
-    template_name = "mailing\mailing_report.html"
+    template_name = "mailing/mailing_report.html"
     model = models.MailingTry
     paginate_by = 10
     extra_context = {

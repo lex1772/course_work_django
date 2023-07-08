@@ -57,9 +57,9 @@
       </table>
       {% for article in random_article %}
         <h1 class="display-4 fw-normal">{{article.name}}</h1>
-        <img src="\img\{{ article.image }}"class="img-fluid"><rect width="20%" height="20%"></rect>
+        <img src="/img/{{ article.image }}"class="img-fluid"><rect width="20%" height="20%"></rect>
         <p class="lead fw-normal">{{article.post|truncatechars:20}}.</p>
-        <a class="btn btn-outline-secondary" href="blog\{{article.slug}}">Читать полностью</a>
+        <a class="btn btn-outline-secondary" href="blog/{{article.slug}}">Читать полностью</a>
       {% endfor %}
   </main>
 {% endblock %}

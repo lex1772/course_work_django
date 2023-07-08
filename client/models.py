@@ -27,6 +27,9 @@ class User(AbstractUser):
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
 
+    def delete(self, *args, **kwargs):
+        self.is_active = False
+        self.save()
 
     class StatusType(models.Model):
         '''Класс для определения роли пользователя'''
