@@ -23,7 +23,7 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%4rps9^r*7w_oh#ho2x4)038pm6kd=z#owt+^%y2u*&&73^_(7'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'course_work',
-        'USER': 'postgres',
-        'PASSWORD': '12345'
+        'ENGINE': os.getenv('ENGINE'),
+        'NAME': os.getenv('NAME'),
+        'USER': os.getenv('USER'),
+        'PASSWORD': os.getenv('PASSWORD')
     }
 }
 
@@ -148,7 +148,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/client/'
 
-CACHE_ENABLED = False
+CACHE_ENABLED = True
 
 if CACHE_ENABLED:
     CACHES = {

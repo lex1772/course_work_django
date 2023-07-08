@@ -104,7 +104,11 @@ class ProfileDeleteView(DeleteView):
     form_class = UserProfileForm
     success_url = reverse_lazy('client:login')
 
-    def get_object(self, queryset=None):
-        obj = super().get_object()
-        obj.delete()
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        # Удаление профиля пользователя
+        self.object.delete()
+
+        messages.success(request, 'Профиль успешно удален.')
         return redirect(self.success_url)

@@ -15,7 +15,8 @@ class StyleFormMixin:
 
 class MailForm(StyleFormMixin, forms.ModelForm):
     '''Форма для письма с переменной которая выводит в список и дает выбрать нескольких клиентов'''
-    client_to_message = forms.ModelMultipleChoiceField(queryset=MailingClient.objects.all(), required=False)
+    clients = MailingClient.objects.all()
+    client_to_message = forms.ModelMultipleChoiceField(queryset=clients, required=False)
 
     class Meta:
         model = models.Mail

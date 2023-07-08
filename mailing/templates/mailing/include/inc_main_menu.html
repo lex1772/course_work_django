@@ -11,6 +11,7 @@
         {% if user.is_authenticated %}
           <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{%url 'client:profile' %}">Профиль</a>
           <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{%url 'mailing:mailing' %}">Мои рассылки</a>
+          <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{%url 'mailing:create'%}">Создать рассылку</a>
           <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{%url 'mailing:mailing_report' %}">Отчеты по рассылкам</a>
           <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{%url 'mailing:users_to_mail' %}">Добавить почту для рассылки</a>
           <a class="me-3 py-2 link-body-emphasis text-decoration-none" href="{%url 'client:logout' %}">Выйти</a>
